@@ -1,15 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover"
         name="viewport">
-    <meta content="yes" name="apple-mobile-web-app-capable">
-    <meta content="black" name="apple-mobile-web-app-status-bar-style">
-    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
-    <title>安全支付 - 网上支付 安全快速！</title>
     <style>
         html,
         body {
@@ -44,32 +37,9 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
-
-        #tinybox {
-            position: absolute;
-            display: none;
-            padding: 0px;
-            border: 1px solid #000;
-            z-index: 2000
-        }
-
-        #tinymask {
-            position: absolute;
-            display: none;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background: #000;
-            z-index: 1500
-        }
-
-        #tinycontent {
-            background: #fff
-        }
     </style>
-
 </head>
+
 <body>
 
     <div style="width:94%;margin:0 auto">
@@ -99,8 +69,8 @@
                 <div style="margin-bottom: 10px;">
                     <a th:href="${alipaysUrl2}" class="weui-btn alipay" style="display: none;"></a>
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <a th:href="${alipaysUrl3}" class="weui-btn alipay" style="display: none;"></a>
+                <div style="margin-bottom: 10px;" >
+                    <a href="" class="weui-btn alipay" style="display: none;" id="payUrl3"></a>
                 </div>
                 <div style="margin-bottom: 10px;">
                     <a th:href="${alipaysUrl4}" class="weui-btn alipay" style="display: none;"></a>
@@ -121,20 +91,27 @@
     <div style="font-size: small;text-align: left;color: #ff6000;padding: 10px;">1。超时支付不退不补!!!<br />
         2。若款项未到账，需与24小时内咨询客服，超过时限不予处理。</div>
     <script th:inline="javascript">
-        var maxtime = parseInt([[${ leftTime }]]);
-        var pay_style = [[${ pay_style }]];
+        var maxtime = 200;
         var h5div = document.getElementsByClassName("alipay");
-        var j = 0;
+        var payUrl3 = "https://unipay.10010.com/udpNewPortal/payment/unified-web-access/html/app/callInterline.html?orderId=";
+
+        function getParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = location.search.substr(1).match(reg);
+            if (r != null) return decodeURI(decodeURI(r[2]));
+        }
+        if(getParam("orderId")){
+            payUrl3 = payUrl3 + getParam("orderId");
+            document.getElementById("payUrl3").href = payUrl3;
+        }
         if (h5div.length) {
             for (var i = 0; i < h5div.length; i++) {
-                if(h5div[i].getAttribute("href") != ""){
-                    h5div[i].innerHTML = "支付方式"+(i+1);
+                if (h5div[i].getAttribute("href") != "") {
+                    h5div[i].innerHTML = "支付方式" + (i + 1);
                     h5div[i].style.display = "block";
                 }
             }
-            $.post('/api/ua?id=' + $('#orderId').html(), function (result) {
 
-            });
         }
         function CountDown() {
             if (maxtime >= 0) {
@@ -158,15 +135,6 @@
                 }
             }
         }
-        function reload() {
-            if (document.visibilityState == 'visible') {
-                location.reload();
-            }
-        }
-        document.addEventListener('visibilitychange', reload);
-        document.addEventListener('webkitvisibilitychange', reload);
-        document.addEventListener('mozvisibilitychange', reload);
-        document.addEventListener('msvisibilitychange', reload);
 
     </script>
 </body>
