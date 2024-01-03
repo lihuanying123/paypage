@@ -1,1 +1,174 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover"
+        name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <title>安全支付 - 网上支付 安全快速！</title>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: rgb(245, 250, 255);
+            text-align: center;
+        }
+
+        .weui-btn {
+            position: relative;
+            display: block;
+            width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 8px 20px;
+            box-sizing: border-box;
+            font-weight: 400;
+            font-size: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            line-height: 1.41176471;
+            border-radius: 4px;
+            overflow: hidden;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            background-color: #1677ff;
+        }
+
+        .style-header {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #tinybox {
+            position: absolute;
+            display: none;
+            padding: 0px;
+            border: 1px solid #000;
+            z-index: 2000
+        }
+
+        #tinymask {
+            position: absolute;
+            display: none;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: #000;
+            z-index: 1500
+        }
+
+        #tinycontent {
+            background: #fff
+        }
+    </style>
+
+</head>
+<body>
+
+    <div style="width:94%;margin:0 auto">
+        <div style="font-size: 20px;color: #333;padding: 8px;font-weight: bold;">
+            支付
+            <span class="amount" id="amount" th:text="${amount}"></span>
+            元
+        </div>
+        <div style="padding: 5px;">
+            订单号：
+            <span class="orderId" id="orderId" th:text="${id}"></span>
+
+        </div>
+        <div class="H5Div" style="background-color: white;padding: 8px;margin-bottom: 15px;">
+            <div class="style-header">支付宝支付</div>
+            <div style="text-align:center;"><span class="warning" id="Span2"
+                    style="color:black;font-size:20px;"><b><small>
+                            <font color="red" size="2px">
+                                强烈建议：如付款未成功，退出（手机支付宝app）账号，重登之后到支付宝账单重新支付该订单，百分百成功，未成功可多次尝试。步骤【重登后-账单-订单-立即付款-查看帮助-我知道了-立即付款-支付成功】
+                            </font>
+                        </small></b></span>
+            </div>
+            <div id="box">
+                <div style="margin-bottom: 10px;">
+                    <a th:href="${alipaysUrl1}" class="weui-btn alipay" style="display: none;"></a>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <a th:href="${alipaysUrl2}" class="weui-btn alipay" style="display: none;"></a>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <a th:href="${alipaysUrl3}" class="weui-btn alipay" style="display: none;"></a>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <a th:href="${alipaysUrl4}" class="weui-btn alipay" style="display: none;"></a>
+                </div>
+            </div>
+        </div>
+        <div class="style-header">联通app支付</div>
+        <div style="font-size:medium;color:red;margin-bottom: 10px;">必须安装联通营业厅才能支付</div>
+
+        <div style="margin-bottom: 10px;">
+            <a th:href="${downloadUrl}" class="weui-btn" style="background-color: #ff6000;">下载联通APP</a>
+        </div>
+        <div>
+            <a th:href="${payUrl}" class="weui-btn">联通APP支付</a>
+        </div>
+    </div>
+    <p id="timer"></p>
+    <div style="font-size: small;text-align: left;color: #ff6000;padding: 10px;">1。超时支付不退不补!!!<br />
+        2。若款项未到账，需与24小时内咨询客服，超过时限不予处理。</div>
+    <script th:inline="javascript">
+        var maxtime = parseInt([[${ leftTime }]]);
+        var pay_style = [[${ pay_style }]];
+        var h5div = document.getElementsByClassName("alipay");
+        var j = 0;
+        if (h5div.length) {
+            for (var i = 0; i < h5div.length; i++) {
+                if(h5div[i].getAttribute("href") != ""){
+                    h5div[i].innerHTML = "支付方式"+(i+1);
+                    h5div[i].style.display = "block";
+                }
+            }
+            $.post('/api/ua?id=' + $('#orderId').html(), function (result) {
+
+            });
+        }
+        function CountDown() {
+            if (maxtime >= 0) {
+                minutes = Math.floor(maxtime / 60);
+                seconds = Math.floor(maxtime % 60);
+                msg = "剩余" + minutes + "分" + seconds + "秒";
+                document.getElementById("timer").innerHTML = msg;
+                --maxtime;
+            } else {
+                document.getElementById("timer").innerHTML = "订单已过期，请重新下单";
+                clearInterval(timer);
+                clearPayUrl();
+            }
+        }
+
+        timer = setInterval("CountDown()", 1000);
+        function clearPayUrl() {
+            if (h5div.length) {
+                for (var i = 0; i < h5div.length; i++) {
+                    h5div[i].style.display = 'none';
+                }
+            }
+        }
+        function reload() {
+            if (document.visibilityState == 'visible') {
+                location.reload();
+            }
+        }
+        document.addEventListener('visibilitychange', reload);
+        document.addEventListener('webkitvisibilitychange', reload);
+        document.addEventListener('mozvisibilitychange', reload);
+        document.addEventListener('msvisibilitychange', reload);
+
+    </script>
+</body>
+
+</html>
